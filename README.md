@@ -26,13 +26,10 @@ The analysis pipeline consists of the following modules.
 We design heuristic interaction metrics to quantify driving complexity:
 
 - **Longitudinal Pressure**  
-  Within a 4-second sliding window, the number of significant deceleration events satisfies:  
-  \[
-  \text{# deceleration events} \ge 2
-  \]
+  Within a 4-second sliding window, the number of significant deceleration events satisfies:  $$deceleration events \ge 2$$
 
 - **Lateral Offset**  
-  Lateral displacement \(> 0.5\text{ m}\), used to distinguish lane changes and evasive maneuvers.
+  $Lateral displacement > 0.5 m$ , used to distinguish lane changes and evasive maneuvers.
 
 - **Composite Interaction Score**  
   A weighted score based on jerk, lateral G-force, and speed factors, producing a continuous measure of interaction intensity for each time segment.
