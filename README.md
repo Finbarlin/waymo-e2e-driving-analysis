@@ -7,7 +7,7 @@ This project uses the **Waymo Open Dataset (WOD)** and kinematic features to ide
 ## 📂 Project Structure
 Below are the folder structure:
 
-- `data/`: Contains python module to pre-process and classify raw data, and processed Waymo dataset files.
+- `data/`: Contains python module to pre-process and classify raw data.
 - `notebooks/`: Jupyter notebooks for analysis and visualization.
 - `src/`: Source code modules for analysis and visualization.
 - `presentation_slides.pdf`: Presentation slides.
@@ -19,9 +19,7 @@ Below are the folder structure:
 waymo-e2e-driving-analysis/
 ├── data/
 │   ├── preprocess.py
-│   ├── scenario_classification.py
-│   ├── metrics.csv
-│   └── classified_metrics.csv
+│   └── scenario_classification.py
 ├── notebooks/
 │   └── main.ipynb
 ├── src/
@@ -100,34 +98,17 @@ The data suggests that AVs tend to rely on **early prediction and conservative p
 ---
 
 ## 🧩 Dependencies
-The following dependencies are required to run the whole pipeline:
-
-- Python >= 3.8
-- numpy
-- tensorflow
-- pandas
-- scikit-learn
-- matplotlib
-- plotly
-- seaborn
-- waymo-open-dataset-tf-2-8 (Waymo Open Dataset API)
-
-
-Install all dependencies using:
-
-```bash
-pip install -r requirements.txt
-```
+This project is designed to run on Google Colab for ease of setup and reproducibility.  
+We use a selected source data from the Waymo Open Dataset, available at [link to dataset] (replace with actual URL).
 
 ---
 ## ▶️ How to Run
-To run the analysis:
 
-1. Open `notebooks/main.ipynb` in Jupyter Notebook or JupyterLab.
-2. Execute the notebook cells in order to preprocess data, run scenario classification, and generate plots.
-3. Ensure all dependencies are installed (see [Dependencies](#-dependencies)).
+1. Open `notebooks/main.ipynb` in [Colab](https://colab.research.google.com/).
+2. Follow the instruction to install dependencies, import modules and load dataset.
+3. Execute the notebook cells in order to preprocess data, run scenario classification, and generate plots.
 
-For command-line usage or custom scripts, refer to the modules in `data/` and `src/`.
+For function usage or custom scripts, refer to the modules in `data/` and `src/`.
 
 ---
 
