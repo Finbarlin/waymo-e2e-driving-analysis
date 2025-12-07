@@ -113,7 +113,11 @@ The data suggests that AVs tend to rely on **early prediction and conservative p
 ## 🧩 Dependencies
 This project is designed to run on [Google Colab](https://colab.research.google.com/) for ease of setup and reproducibility. Libraries and package dependency can be seen in the notebook's *Requirement* part.
 
-We use a selected source data from the [Waymo E2E driving Open Dataset](https://waymo.com/open/data/e2e), available at [link to dataset](https://drive.google.com/drive/u/0/folders/1qKqdNoNP2qZcnCzAOpMc2_GCWjVLBAF1). For more information about waymo open dataset, can see [data proto definition](https://github.com/waymo-research/waymo-open-dataset/blob/master/src/waymo_open_dataset/protos/end_to_end_driving_data.proto) and [official tutorial](https://github.com/waymo-research/waymo-open-dataset/blob/master/tutorial/tutorial_vision_based_e2e_driving.ipynb).
+We use a selected source data from the [Waymo E2E driving Open Dataset](https://waymo.com/open/data/e2e). The dataset we analyzed is uploaded [here](https://drive.google.com/drive/u/0/folders/1qKqdNoNP2qZcnCzAOpMc2_GCWjVLBAF1). 
+
+In order to download the datasets directly from Waymo's Google Cloud, please login with your Google Account [here](https://waymo.com/open/download/). 
+
+For more information about waymo open dataset, can see [data proto definition](https://github.com/waymo-research/waymo-open-dataset/blob/master/src/waymo_open_dataset/protos/end_to_end_driving_data.proto) and [official tutorial](https://github.com/waymo-research/waymo-open-dataset/blob/master/tutorial/tutorial_vision_based_e2e_driving.ipynb).
 
 ---
 ## ▶️ How to Run
