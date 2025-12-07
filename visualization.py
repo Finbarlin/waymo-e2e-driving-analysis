@@ -35,9 +35,9 @@ def rotate_to_vertical(xs, ys, headings):
 
     return x_rot, y_rot
 
-def visualize_hd_dashboard(dataset_input, all_metrics, top_n=5):
+def trajectory_visualization(dataset_input, all_metrics, top_n=5):
     """
-    Generates an HD Dashboard: 
+    Generates a trajectory visualization: 
     - Left Panel: Trajectory analysis (Physics)
     - Right Panel: Multi-view Camera feed (Context)
     
@@ -56,7 +56,7 @@ def visualize_hd_dashboard(dataset_input, all_metrics, top_n=5):
     # Create a map for quick lookup
     event_map = {row['scene_id']: row for _, row in top_events.iterrows()}
 
-    print(f"📸 Generating HD Dashboard for Top {top_n} Events...")
+    print(f"Generating trajectory visualization for Top {top_n} Events...")
 
     # Handle input type: Load dataset if it is a path string
     if isinstance(dataset_input, str):

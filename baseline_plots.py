@@ -1,156 +1,83 @@
 ### ECE143 Final Project Group 4
 ### Waymo E2E Driving Analysis - Baseline Plots
 
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import seaborn as sns
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
+sns.set_theme(style="whitegrid")
+
 def plot_kinematic_statics(all_metrics):
     """
-    Plot statistics of input data such as speed distribution, braking intensity and lateral displacement before classification, to have a general idea of the dataset.
-    
-    :param all_metrics: list of dict, parsed from metrics.csv
-    :return: None
+    Seaborn version of kinematic statistics 1x3 dashboard.
     """
     df = pd.DataFrame(all_metrics)
 
-    # Initialize 1x3 Dashboard
-    fig = make_subplots(
-        rows=1, cols=3,
-        subplot_titles=(
-            "<b><i>Speed Distribution</i></b>",
-            "<b><i>Braking Intensity</i></b>",
-            "<b><i>Lateral Displacement</i></b>"
-        ),
-        horizontal_spacing=0.1
-    )
-
-    # --- HELPER: SMOOTH CURVE GENERATOR ---
-    def get_trend_line(data, bins=30):
-        counts, bin_edges = np.histogram(data, bins=bins)
-        bin_centers = 0.5 * (bin_edges[1:] + bin_edges[:-1])
-        return bin_centers, counts
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5))
+    fig.suptitle('Motion Data', fontsize=16, weight='bold', y=1.05)
 
     # --- PLOT 1: SPEED ---
-    # Histogram
-    fig.add_trace(
-        go.Histogram(
-            x=df['avg_speed_ms'], nbinsx=25,
-            marker_color='skyblue', opacity=0.6,
-            marker_line_color='black', marker_line_width=0.5,
-            name='Speed', showlegend=False,
-            hovertemplate="<b>Speed:</b> %{x:.1f} m/s<br><b>Count:</b> %{y}<extra></extra>"
-        ), row=1, col=1
+    sns.histplot(
+        data=df, x='avg_speed_ms', ax=axes[0], 
+        kde=True, color='skyblue', bins=25,
+        line_kws={'linewidth': 3}
     )
-    # Trend
-    sx, sy = get_trend_line(df['avg_speed_ms'], bins=25)
-    fig.add_trace(
-        go.Scatter(
-            x=sx, y=sy, mode='lines',
-            line=dict(color='darkblue', width=3, shape='spline'),
-            name='Speed Trend', showlegend=False, hoverinfo='skip'
-        ), row=1, col=1
+    
+    # Mean Line & Annotation
+    mean_speed = df['avg_speed_ms'].mean()
+    axes[0].axvline(mean_speed, color='darkblue', linestyle='--', linewidth=2)
+    axes[0].text(
+        x=mean_speed, y=axes[0].get_ylim()[1]*0.95, 
+        s=f" Mean: {mean_speed:.1f} m/s", 
+        color='darkblue', fontweight='bold'
     )
-    # Mean Line
-    fig.add_vline(x=df['avg_speed_ms'].mean(), line_dash="dash", line_color="darkblue", row=1, col=1)
-
-    # Annotation
-    fig.add_annotation(
-        x=df['avg_speed_ms'].mean(), y=0.95, yref="y domain",
-        text=f"Mean: {df['avg_speed_ms'].mean():.1f} m/s",
-        showarrow=False, font=dict(color="darkblue", size=10), row=1, col=1
-    )
+    axes[0].set_title("Speed Distribution", fontweight='bold')
+    axes[0].set_xlabel("Avg Speed (m/s)")
 
     # --- PLOT 2: BRAKING ---
-    braking_data = df[df['max_braking'] < -0.1]['max_braking']
-
-    # Histogram
-    fig.add_trace(
-        go.Histogram(
-            x=braking_data, nbinsx=30,
-            marker_color='coral', opacity=0.6,
-            marker_line_color='black', marker_line_width=0.5,
-            name='Braking', showlegend=False,
-            hovertemplate="<b>Decel:</b> %{x:.1f} m/s²<br><b>Count:</b> %{y}<extra></extra>"
-        ), row=1, col=2
+    braking_data = df[df['max_braking'] < -0.1]
+    
+    sns.histplot(
+        data=braking_data, x='max_braking', ax=axes[1], 
+        kde=True, color='coral', bins=30,
+        line_kws={'linewidth': 3}
     )
-    # Trend
-    if len(braking_data) > 0:
-        bx, by = get_trend_line(braking_data, bins=30)
-        fig.add_trace(
-            go.Scatter(
-                x=bx, y=by, mode='lines',
-                line=dict(color='darkred', width=3, shape='spline'),
-                name='Braking Trend', showlegend=False, hoverinfo='skip'
-            ), row=1, col=2
-        )
-    # Threshold
-    fig.add_vline(x=-3.0, line_dash="dash", line_color="red", row=1, col=2)
-    fig.add_annotation(
-        x=-3.0, y=1.05, yref="y2 domain",
-        text="<i>Hard Brake<br>(-3.0)</i>", xanchor="right",
-        showarrow=False, font=dict(color="red"),
-        row=1, col=2
+    
+    # Threshold Line & Annotation
+    axes[1].axvline(-3.0, color='red', linestyle='--', linewidth=2)
+    axes[1].text(
+        x=-3.0, y=axes[1].get_ylim()[1]*0.95, 
+        s=" Hard Brake\n (-3.0)", 
+        color='red', ha='left', va='top'
     )
+    axes[1].set_title("Braking Intensity", fontweight='bold')
+    axes[1].set_xlabel("Max Deceleration (m/s²)")
 
     # --- PLOT 3: LATERAL ---
-    # Histogram
-    fig.add_trace(
-        go.Histogram(
-            x=df['net_lateral_dist_m'], nbinsx=30,
-            marker_color='lightgreen', opacity=0.6,
-            marker_line_color='black', marker_line_width=0.5,
-            name='Lateral', showlegend=False,
-            hovertemplate="<b>Dist:</b> %{x:.1f} m<br><b>Count:</b> %{y}<extra></extra>"
-        ), row=1, col=3
+    sns.histplot(
+        data=df, x='net_lateral_dist_m', ax=axes[2], 
+        kde=True, color='lightgreen', bins=30,
+        line_kws={'linewidth': 3}
     )
-    # Trend
-    lx, ly = get_trend_line(df['net_lateral_dist_m'], bins=30)
-    fig.add_trace(
-        go.Scatter(
-            x=lx, y=ly, mode='lines',
-            line=dict(color='darkgreen', width=3, shape='spline'),
-            name='Lateral Trend', showlegend=False, hoverinfo='skip'
-        ), row=1, col=3
+    
+    # Threshold Line & Annotation
+    axes[2].axvline(3.7, color='green', linestyle='--', linewidth=2)
+    axes[2].text(
+        x=3.7, y=axes[2].get_ylim()[1]*0.95, 
+        s=" Avg Lane\n Width (3.7m)", 
+        color='darkgreen', ha='right', va='top'
     )
-    # Threshold
-    fig.add_vline(x=3.7, line_dash="dash", line_color="green", row=1, col=3)
-    fig.add_annotation(
-        x=3.7, y=1.05, yref="y3 domain", text="<i>Avg. Lane Wdith<br>3.7m</i>",
-        showarrow=False, font=dict(color="darkgreen", size=10), xanchor="right",
-        row=1, col=3
-    )
+    axes[2].set_title("Lateral Displacement", fontweight='bold')
+    axes[2].set_xlabel("Net Lateral Dist (m)")
 
-    # --- STYLING ---
-    fig.update_layout(
-        height=400, width=1500,
-        title_text="<b>Motion Data</b>",
-        title_x=0.5, title_xanchor='center',
-        template='plotly_white',
-        margin=dict(t=100, l=40, r=40, b=40),
-        bargap=0.1
-    )
-
-    # Axis Labels
-    fig.update_xaxes(title_text="Avg Speed (m/s)", row=1, col=1)
-    fig.update_yaxes(title_text="Count", row=1, col=1)
-
-    fig.update_xaxes(title_text="Max Deceleration (m/s²)", row=1, col=2)
-    fig.update_yaxes(title_text="Count", row=1, col=2)
-
-    fig.update_xaxes(title_text="Net Lateral Dist (m)", row=1, col=3)
-    fig.update_yaxes(title_text="Count", row=1, col=3)
-
-    fig.show()
+    plt.tight_layout()
+    plt.show()
 
 
 def plot_scenario_distribution(all_metrics):
     """
-    Plot a bar chart showing the distribution of driving scenarios, to understand current scenarios we have.
-    
-    :param all_metrics: list of dict, parsed from metrics.csv
-    :return: None
+    Seaborn version of scenario distribution bar chart.
     """
     df = pd.DataFrame(all_metrics)
 
@@ -158,29 +85,21 @@ def plot_scenario_distribution(all_metrics):
     counts = df['scenario'].value_counts().reset_index()
     counts.columns = ['scenario', 'count']
 
-    fig = go.Figure()
-
-    fig.add_trace(go.Bar(
-        x=counts['scenario'],
-        y=counts['count'],
-        marker_color='teal',
-        marker_line_color='black',
-        marker_line_width=1.5,
-        text=counts['count'],
-        textposition='auto',
-        name='Scenarios',
-        hovertemplate="<b>%{x}</b><br>Count: %{y}<extra></extra>"
-    ))
-
-    fig.update_layout(
-        height=500, width=800,
-        title_text="<b>Driving Scenario Distribution</b>",
-        title_x=0.5, title_xanchor='center',
-        template='plotly_white',
-        xaxis_title="Scenario Type",
-        yaxis_title="Count",
-        margin=dict(t=80, l=40, r=40, b=80),
-        xaxis_tickangle=-15 # Slight tilt for readability
+    plt.figure(figsize=(10, 6))
+    
+    # Create Bar Plot
+    ax = sns.barplot(
+        data=counts, x='scenario', y='count', 
+        color='teal', edgecolor='black'
     )
 
-    fig.show()
+    # Add Text Labels on top of bars
+    ax.bar_label(ax.containers[0], padding=3)
+
+    plt.title("Driving Scenario Distribution", fontsize=14, weight='bold')
+    plt.xlabel("Scenario Type")
+    plt.ylabel("Count")
+    plt.xticks(rotation=15)
+    
+    plt.tight_layout()
+    plt.show()

@@ -13,15 +13,6 @@ import os
 # Import Waymo dataset libraries
 from waymo_open_dataset.protos import end_to_end_driving_data_pb2 as wod_e2ed_pb2
 
-# Set plotting style
-sns.set_style('whitegrid')
-plt.rcParams['figure.figsize'] = (12, 8)
-
-print("Libraries imported successfully!")
-
-from google.colab import drive
-drive.mount('/content/drive')
-
 def analyze_driving_behavior(data):
     """
     Analyzes driving behavior using vector projection + Intent + Jerk.
@@ -214,78 +205,3 @@ def classify_scenario(metrics):
 
     # > 55 mph
     return "Highway Cruising"
-
-def process_data(input_data):
-    # Load one record
-    dataset = input_data
-    raw = next(iter(dataset))
-
-    # Count total frames in the dataset
-    total_frames = 0
-    try:
-        for _ in tf.data.TFRecordDataset(TFRECORD_FILE): # Reload dataset to count from beginning
-            total_frames += 1
-        print(f"Total frames available in the dataset: {total_frames}")
-    except tf.errors.DataLossError as e:
-        print(f"Warning: DataLossError encountered while counting frames. Dataset might be truncated or corrupted. Read {total_frames} frames before error.")
-        print(f"Error details: {e}")
-    except Exception as e:
-        print(f"An unexpected error occurred while counting frames: {e}")
-
-    # Parse E2E frame (this is the correct message!)
-    frame = wod_e2ed_pb2.E2EDFrame()
-    frame.ParseFromString(raw.numpy())
-
-    # Process dataset
-    print("Processing data...")
-    all_metrics = []
-    scenario_counts = defaultdict(int)
-
-    # 1. Dataset Iter
-    dataset_iter = dataset.as_numpy_iterator()
-    dataset_iter = iter(dataset_iter)
-
-    # 2. Process
-    for idx, bytes_example in enumerate(dataset_iter):
-        if idx >= NUM_SAMPLES: break
-
-        try:
-            data = wod_e2ed_pb2.E2EDFrame()
-            data.ParseFromString(bytes_example)
-
-            # Analysis
-            metrics = analyze_driving_behavior(data)
-
-            if metrics:
-                # Classification
-                scenario = classify_scenario(metrics)
-                metrics['scenario'] = scenario
-
-                # Store
-                scenario_counts[scenario] += 1
-                all_metrics.append(metrics)
-
-            if (idx + 1) % 50 == 0:
-                print(f"Processed {idx + 1} records...")
-
-        except Exception as e:
-            print(f"Error record {idx}: {e}")
-            continue
-
-    # 3. Results
-    print(f"\n Analyzed {len(all_metrics)} samples")
-    print("-" * 55)
-    print(f"{'SCENARIO':<35} | {'COUNT':<5} | {'%':<5}")
-    print("-" * 55)
-    for scenario, count in sorted(scenario_counts.items(), key=lambda x: x[1], reverse=True):
-        print(f"{scenario:<35} | {count:<5} | {count/len(all_metrics)*100:.1f}%")
-
-# Configure dataset path
-TFRECORD_FILE = '/content/drive/MyDrive/ECE143_Datasets/training_202504031202_202504151040.tfrecord-00000-of-00263'
-NUM_SAMPLES = 1000  # Analyze first 100 samples
-
-# Load TFRecord dataset
-dataset = tf.data.TFRecordDataset(TFRECORD_FILE, compression_type='')
-
-process_data(dataset)
-
