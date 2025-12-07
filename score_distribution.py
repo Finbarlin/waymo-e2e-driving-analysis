@@ -3,12 +3,47 @@
 
 import plotly.express as px
 import pandas as pd
+import pandas as pd
+
+def iqr(x):
+    """
+    Calculate the interquartile range (IQR) of a pandas Series.
+    
+    :param x: input series
+    :return: interquartile range
+    """
+    return x.quantile(0.75) - x.quantile(0.25)
+
+def plot_interaction_score(all_metrics):
+    """
+    Display a summary table of interaction score statistics for each scenario type.
+    
+    :param all_metrics: input dataframe
+    :return: None
+    """
+    df = pd.DataFrame(all_metrics)
+
+    # Clean up Scenario Names for nicer legends
+    df['scenario_clean'] = df['scenario'].str.replace('/', '/<br>')
+    # =========================================================================
+    # TABLE: THE RISK PROFILE STATS SUMMARY
+    # =========================================================================
+    # Insight: List the statistics for each scenario type
+    stats_df = df.groupby('scenario')['interaction_score'].agg(
+        median='median',
+        iqr=iqr,
+        max='max',
+        min='min'
+    ).reset_index().sort_values(by='median', ascending=False)
+    print("\n=== RISK PROFILE STATS SUMMARY ===")
+    print(stats_df.to_markdown(index=False))
+    # End of plot_interaction_score
 
 def plot_physics_deep_dive(all_metrics):
     """
     Based on the interaction score, plot the score variance/stability of each scenario type, as an indication of how risky they are.
     
-    :param all_metrics: parsed from classified_metrics.csv
+    :param all_metrics: pd.DataFrame
     :return: None
     """
     df = pd.DataFrame(all_metrics)
@@ -57,7 +92,7 @@ def plot_physics_deep_dive_optional(all_metrics):
     Plots 1) The maneuver map: Distinguishes "Swerving" (staying in lane) from "Changing Lanes"
           2) The danger zone: how strong does the deceleration look like for different scenarios
     
-    :param all_metrics: parsed from classified_metrics.csv
+    :param all_metrics: pd.DataFrame
     :return: None
     """
     df = pd.DataFrame(all_metrics)
