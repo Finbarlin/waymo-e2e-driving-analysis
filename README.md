@@ -7,9 +7,9 @@ This project uses the **Waymo Open Dataset (WOD)** and kinematic features to ide
 ## 📂 Project Structure
 Below are the folder structure:
 
-- `data/`: Contains python module to pre-process and classify raw data.
-- `notebooks/`: Jupyter notebooks for analysis and visualization.
-- `src/`: Source code modules for analysis and visualization.
+- `data/`: Contains python file to pre-process and classify scenarios from raw data.
+- `src/`: Source code for analysis and visualization.
+- `main.ipynb`: Jupyter notebooks for running analysis and visualization result.
 - `presentation_slides.pdf`: Presentation slides.
 - `requirements.txt`: Python dependencies.
 - `README.md`: Project documentation.
@@ -18,14 +18,13 @@ Below are the folder structure:
 ```
 waymo-e2e-driving-analysis/
 ├── data/
-│   ├── preprocess.py
 │   └── scenario_classification.py
-├── notebooks/
-│   └── main.ipynb
 ├── src/
 │   ├── baseline_plots.py
+│   ├── interaction_validation.py
 │   ├── score_distribution.py
-│   └── interaction_validation.py
+│   └── visualization.py
+├── main.ipynb
 ├── presentation_slides.pdf
 ├── requirements.txt
 ├── README.md
