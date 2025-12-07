@@ -60,30 +60,21 @@ The analysis pipeline consists of the following modules.
 
 **Contextualization**: Extract corresponding camera feeds and ground-truth intent labels for each frame.
 
-### 3. Analysis
-**Feature Engineering**: Calculate statistical distributions of motion data.
+### 3. Analysis & Classification
+We transform raw Waymo data into interpretable safety metrics using the following pipeline:
 
-**Metric Definition**: Formulate and comput the **Interaction Score** to quantify safety and comfort in real-time. The interaction score considers:
+* **Feature Engineering:** Decomposes raw acceleration into **Longitudinal** (Gas/Brake) and **Lateral** (Steering) vectors. Calculates **Jerk** ($\Delta a / \Delta t$) as the primary indicator of ride comfort.
+* **Metric Definition:** Computes a real-time **Interaction Score**. This composite metric aggregates longitudinal pressure, lateral offset ($>0.5m$), and speed to quantify the "intensity" of every frame.
 
-- **Longitudinal Pressure**  
-  Within a 4-second sliding window, the number of significant deceleration events satisfies:  $$deceleration events \ge 2$$
+**Scenario Classification Logic**
+We apply a **4-Tier Priority System** to categorize driving behavior. Higher tiers override lower ones to ensure safety-critical events are never missed:
 
-- **Lateral Offset**  
-  $Lateral displacement > 0.5 m$ , used to distinguish lane changes and evasive maneuvers.
-
-- **Composite Interaction Score**  
-  A weighted score based on jerk, lateral G-force, and speed factors, producing a continuous measure of interaction intensity for each time segment.
-
-**Scenario Clustering** Driving segments are automatically clustered into typical urban traffic scenarios:
-
-- **Stop-and-Go Congestion**  
-  Low speed with frequent starts and stops.
-
-- **City Surface Roads**  
-  Medium speed with regular interactions such as lane changes, car-following, and yielding.
-
-- **Arterial / Highway-like Roads**  
-  Higher speed with relatively low interaction frequency.
+| Tier | Level | Scenario Type |
+| :--- | :--- | :--- |
+| **1** | **Critical** | Emergency Braking ($< -4.5 m/s^2$), Evasive Swerves |
+| **2** | **High** | Cut-ins, Hard Launches, Erratic Driving |
+| **3** | **Medium** | Stop-and-Go Traffic, Lane Weaving, Active Lane Changes |
+| **4** | **Low** | Typical Driving (Parking, City, Highway Cruising) |
 
 ### 4. Visualization
 **Scenario Validation**: Generated trajectory plots and matched them with ego-centric camera views to visually verify high-interaction events.
