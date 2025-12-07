@@ -9,6 +9,7 @@ Below are the folder structure:
 
 - `data/`: Contains python file to pre-process and classify scenarios from raw data.
 - `src/`: Source code for analysis and visualization.
+- `viz/`: Visualization images from analysis.
 - `main.ipynb`: Jupyter notebooks for running analysis and visualization result.
 - `presentation_slides.pdf`: Presentation slides.
 - `requirements.txt`: Python dependencies.
@@ -24,6 +25,8 @@ waymo-e2e-driving-analysis/
 │   ├── interaction_validation.py
 │   ├── score_distribution.py
 │   └── visualization.py
+├── viz/
+│   └──  ...
 ├── main.ipynb
 ├── presentation_slides.pdf
 ├── requirements.txt
@@ -47,10 +50,20 @@ The core goal is to answer the following questions through quantitative analysis
 ## 🛠 Methodology
 
 The analysis pipeline consists of the following modules.
+### 1. Data Ingestion
+**Data Selection**: Select a single, comprehensive test set from the massive Waymo Open Dataset cloud buckets to ensure manageable depth.
 
-### 1. Interaction Metrics
+**Streaming**: Ingest the data via direct streaming of TensorFlow records.
 
-We design heuristic interaction metrics to quantify driving complexity:
+### 2. Processing
+**Parsing**: Decode raw TF records to isolate vehicle kinematics (position , velocity, acceleration).
+
+**Contextualization**: Extract corresponding camera feeds and ground-truth intent labels for each frame.
+
+### 3. Analysis
+**Feature Engineering**: Calculate statistical distributions of motion data.
+
+**Metric Definition**: Formulate and comput the **Interaction Score** to quantify safety and comfort in real-time. The interaction score considers:
 
 - **Longitudinal Pressure**  
   Within a 4-second sliding window, the number of significant deceleration events satisfies:  $$deceleration events \ge 2$$
@@ -61,9 +74,7 @@ We design heuristic interaction metrics to quantify driving complexity:
 - **Composite Interaction Score**  
   A weighted score based on jerk, lateral G-force, and speed factors, producing a continuous measure of interaction intensity for each time segment.
 
-### 2. Scenario Clustering
-
-Driving segments are automatically clustered into typical urban traffic scenarios:
+**Scenario Clustering** Driving segments are automatically clustered into typical urban traffic scenarios:
 
 - **Stop-and-Go Congestion**  
   Low speed with frequent starts and stops.
@@ -73,6 +84,9 @@ Driving segments are automatically clustered into typical urban traffic scenario
 
 - **Arterial / Highway-like Roads**  
   Higher speed with relatively low interaction frequency.
+
+### 4. Visualization
+**Scenario Validation**: Generated trajectory plots and matched them with ego-centric camera views to visually verify high-interaction events.
 
 ---
 
@@ -97,8 +111,9 @@ The data suggests that AVs tend to rely on **early prediction and conservative p
 ---
 
 ## 🧩 Dependencies
-This project is designed to run on Google Colab for ease of setup and reproducibility.  
-We use a selected source data from the Waymo Open Dataset, available at [link to dataset] (replace with actual URL).
+This project is designed to run on [Google Colab](https://colab.research.google.com/) for ease of setup and reproducibility. Libraries and package dependency can be seen in the notebook's *Requirement* part.
+
+We use a selected source data from the [Waymo E2E driving Open Dataset](https://waymo.com/open/data/e2e), available at [link to dataset](https://drive.google.com/drive/u/0/folders/1qKqdNoNP2qZcnCzAOpMc2_GCWjVLBAF1). For more information about waymo open dataset, can see [data proto definition](https://github.com/waymo-research/waymo-open-dataset/blob/master/src/waymo_open_dataset/protos/end_to_end_driving_data.proto) and [official tutorial](https://github.com/waymo-research/waymo-open-dataset/blob/master/tutorial/tutorial_vision_based_e2e_driving.ipynb).
 
 ---
 ## ▶️ How to Run
