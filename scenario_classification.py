@@ -215,9 +215,9 @@ def classify_scenario(metrics):
     # > 55 mph
     return "Highway Cruising"
 
-def process_and_save():
+def process_data(input_data):
     # Load one record
-    dataset = tf.data.TFRecordDataset(TFRECORD_FILE)
+    dataset = input_data
     raw = next(iter(dataset))
 
     # Count total frames in the dataset
@@ -280,11 +280,6 @@ def process_and_save():
     for scenario, count in sorted(scenario_counts.items(), key=lambda x: x[1], reverse=True):
         print(f"{scenario:<35} | {count:<5} | {count/len(all_metrics)*100:.1f}%")
 
-    # Store the classified metrics in a csv file
-    df = pd.DataFrame(all_metrics)
-    df.to_csv("classified_metrics.csv", index=False)
-    print("\n Saved CSV inside function.")
-
 # Configure dataset path
 TFRECORD_FILE = '/content/drive/MyDrive/ECE143_Datasets/training_202504031202_202504151040.tfrecord-00000-of-00263'
 NUM_SAMPLES = 1000  # Analyze first 100 samples
@@ -292,5 +287,5 @@ NUM_SAMPLES = 1000  # Analyze first 100 samples
 # Load TFRecord dataset
 dataset = tf.data.TFRecordDataset(TFRECORD_FILE, compression_type='')
 
-process_and_save()
+process_data(dataset)
 
